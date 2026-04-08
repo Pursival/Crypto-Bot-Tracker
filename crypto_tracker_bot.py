@@ -132,14 +132,19 @@ async def auto_update(app):
                     leader = "XRP ahead" if discrepancy > 0 else "SOL ahead"
                     msg = (
                         f"⚡ Discrepancy ongoing ⚡\n"
-                        f"XRP: ${xrp_price:.4f} ({xrp_change:+.2f}%) | "
+                        f"XRP: ${xrp_price:.4f} ({xrp_change:+.2f}%)\n"
                         f"SOL: ${sol_price:.2f} ({sol_change:+.2f}%)\n"
                         f"Discrepancy: {discrepancy:+.2f}% ({leader}, Threshold: {threshold:.2f}%)"
                     )
                     await app.bot.send_message(chat_id=CHAT_ID, text=msg)
                     data["discrepancy_active"] = True
                 elif data.get("discrepancy_active", False) and abs_discrepancy < threshold:
-                    msg = f"✅ Discrepancy cleared. XRP: {xrp_change:+.2f}%, SOL: {sol_change:+.2f}%, Discrepancy: {discrepancy:+.2f}%"
+                    msg = (
+                        f"✅ Discrepancy cleared.\n"
+                        f"XRP: {xrp_change:+.2f}%\n"
+                        f"SOL: {sol_change:+.2f}%\n"
+                        f"Discrepancy: {discrepancy:+.2f}%"
+                    )
                     await app.bot.send_message(chat_id=CHAT_ID, text=msg)
                     data["discrepancy_active"] = False
 
