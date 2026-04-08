@@ -101,15 +101,19 @@ async def toggle_spam(update: Update, context: ContextTypes.DEFAULT_TYPE):
     status = "enabled" if data["spam_enabled"] else "disabled"
     await update.message.reply_text(f"Spam alerts are now {status}.")
 
+# ====== Price Fetcher ======
+def fetch_prices():
+    resp = requests.get(
+        "https://api.coingecko.com/api/v3/simple/price?ids=ripple,solana&vs_currencies=usd",
+        timeout=10
+    ).json()
+    return float(resp["ripple"]["usd"]), float(resp["solana"]["usd"])
+
 # ====== Automatic Checker ======
 async def auto_update(app):
     while True:
         try:
-            xrp = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=XRPUSDT", timeout=10).json()
-            sol = requests.get("https://api.binance.com/api/v3/ticker/price?symbol=SOLUSDT", timeout=10).json()
-
-            xrp_price = float(xrp["price"])
-            sol_price = float(sol["price"])
+            xrp_price, sol_price = fetch_prices()
 
             xrp_change = (xrp_price - data["xrp_buy"]) / data["xrp_buy"] * 100 if data["xrp_buy"] > 0 else 0
             sol_change = (sol_price - data["sol_buy"]) / data["sol_buy"] * 100 if data["sol_buy"] > 0 else 0
@@ -169,12 +173,14 @@ app.add_handler(CommandHandler("toggle_spam", toggle_spam))
 
 async def main():
     # Start Flask in a separate thread
-    threading.Thread(target=run_flask).start()
-    # Start automatic updates
-    asyncio.create_task(auto_update(app))
-    # Start the Telegram bot
-    await app.start()
-    await app.updater.start_polling()
-    await app.updater.idle()
+    threading.Thread(target=run_flask, daemon=True).start()
+    # Initialize and run bot
+    async with app:
+        # Start automatic updates
+        asyncio.create_task(auto_update(app))
+        # Start the Telegram bot polling
+        await app.start()
+        await app.updater.start_polling()
+        await app.updater.idle()
 
 asyncio.run(main())
