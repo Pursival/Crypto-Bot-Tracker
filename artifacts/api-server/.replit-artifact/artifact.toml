@@ -30,3 +30,11 @@ NODE_ENV = "production"
 
 [services.production.health.startup]
 path = "/api/healthz"
+
+[[services]]
+localPort = 3000
+name = "Bot Flask"
+paths = ["/"]
+
+[services.development]
+run = "python crypto_tracker_bot.py"
