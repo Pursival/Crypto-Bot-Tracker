@@ -176,11 +176,11 @@ async def main():
     threading.Thread(target=run_flask, daemon=True).start()
     # Initialize and run bot
     async with app:
-        # Start automatic updates
-        asyncio.create_task(auto_update(app))
-        # Start the Telegram bot polling
         await app.start()
         await app.updater.start_polling()
-        await app.updater.idle()
+        # Start automatic price checker
+        asyncio.create_task(auto_update(app))
+        # Keep running forever (idle() uses OS signals that don't work on Replit)
+        await asyncio.Event().wait()
 
 asyncio.run(main())
