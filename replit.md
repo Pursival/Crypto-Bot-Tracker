@@ -4,6 +4,23 @@
 
 pnpm workspace monorepo using TypeScript. Each package manages its own dependencies.
 
+## Crypto Tracker Telegram Bot
+
+A Python Telegram bot (`crypto_tracker_bot.py`) that tracks XRP and SOL prices via the Binance API.
+
+### Commands
+- `/start` — Welcome message and instructions
+- `/set_xrp <price>` — Save your XRP buy price in USDT
+- `/set_sol <price>` — Save your SOL buy price in USDT
+- `/status` — Fetch live prices and show % gain/loss from your buy prices
+
+### Config
+- `TELEGRAM_BOT_TOKEN` — Set in Replit Secrets
+- `crypto_data.json` — Persists your buy prices between restarts
+
+### Running
+Workflow: **Crypto Tracker Bot** — runs `python crypto_tracker_bot.py`
+
 ## Stack
 
 - **Monorepo tool**: pnpm workspaces
