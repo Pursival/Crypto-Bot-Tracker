@@ -155,11 +155,21 @@ async def set_position(update: Update, context: ContextTypes.DEFAULT_TYPE):
         json.dump(data, f)
 
 async def last(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    xrp_price = data.get('last_xrp_price', 0)
+    sol_price = data.get('last_sol_price', 0)
+    xrp_buy = data.get('xrp_buy', 0)
+    sol_buy = data.get('sol_buy', 0)
+
+    # Recalculate live against current buy prices so updates show immediately
+    xrp_change = (xrp_price - xrp_buy) / xrp_buy * 100 if xrp_buy > 0 else 0
+    sol_change = (sol_price - sol_buy) / sol_buy * 100 if sol_buy > 0 else 0
+    discrepancy = xrp_change - sol_change
+
     msg = (
         f"📊 Last Ping:\n\n"
-        f"XRP: ${data.get('last_xrp_price', 0):.4f} ({data['last_xrp_change']:+.2f}%)\n"
-        f"SOL: ${data.get('last_sol_price', 0):.2f} ({data['last_sol_change']:+.2f}%)\n"
-        f"Discrepancy: {data['last_xrp_change'] - data['last_sol_change']:+.2f}%\n"
+        f"XRP: ${xrp_price:.4f} ({xrp_change:+.2f}%)\n"
+        f"SOL: ${sol_price:.2f} ({sol_change:+.2f}%)\n"
+        f"Discrepancy: {discrepancy:+.2f}%\n"
         f"Threshold: {data.get('discrepancy_threshold', 2.0):.2f}%\n"
         f"Spam Enabled: {'Yes' if data.get('spam_enabled', True) else 'No'}\n\n"
         f"Position — Bought: {data.get('bought_coin', '—')} @ {data.get('bought_price', 0):.4f}\n"
