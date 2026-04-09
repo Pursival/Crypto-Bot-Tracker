@@ -163,17 +163,30 @@ async def last(update: Update, context: ContextTypes.DEFAULT_TYPE):
     # Recalculate live against current buy prices so updates show immediately
     xrp_change = (xrp_price - xrp_buy) / xrp_buy * 100 if xrp_buy > 0 else 0
     sol_change = (sol_price - sol_buy) / sol_buy * 100 if sol_buy > 0 else 0
-    discrepancy = xrp_change - sol_change
+
+    # Discrepancy = bought coin % - sold coin % using position prices
+    bought_coin = data.get('bought_coin', 'SOL')
+    sold_coin = data.get('sold_coin', 'XRP')
+    bought_price_ref = data.get('bought_price', 0)
+    sold_price_ref = data.get('sold_price', 0)
+
+    price_map = {'XRP': xrp_price, 'SOL': sol_price}
+    bought_current = price_map.get(bought_coin, 0)
+    sold_current = price_map.get(sold_coin, 0)
+
+    bought_change = (bought_current - bought_price_ref) / bought_price_ref * 100 if bought_price_ref > 0 else 0
+    sold_change = (sold_current - sold_price_ref) / sold_price_ref * 100 if sold_price_ref > 0 else 0
+    discrepancy = bought_change - sold_change
 
     msg = (
         f"📊 Last Ping:\n\n"
         f"XRP: ${xrp_price:.4f} ({xrp_change:+.2f}%)\n"
         f"SOL: ${sol_price:.2f} ({sol_change:+.2f}%)\n"
-        f"Discrepancy: {discrepancy:+.2f}%\n"
+        f"Discrepancy: {discrepancy:+.2f}% ({bought_coin}% − {sold_coin}%)\n"
         f"Threshold: {data.get('discrepancy_threshold', 2.0):.2f}%\n"
         f"Spam Enabled: {'Yes' if data.get('spam_enabled', True) else 'No'}\n\n"
-        f"Position — Bought: {data.get('bought_coin', '—')} @ {data.get('bought_price', 0):.4f}\n"
-        f"Position — Sold:   {data.get('sold_coin', '—')} @ {data.get('sold_price', 0):.4f}"
+        f"Position — Bought: {bought_coin} @ {bought_price_ref:.4f}\n"
+        f"Position — Sold:   {sold_coin} @ {sold_price_ref:.4f}"
     )
     await update.message.reply_text(msg)
 
