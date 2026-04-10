@@ -1,0 +1,23 @@
+# fly.toml app configuration file generated for crypto-bot-tracker-hc4p4a on 2026-04-10T19:47:52Z
+#
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
+
+app = 'crypto-bot-tracker-hc4p4a'
+primary_region = 'ams'
+
+[build]
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = 'stop'
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ['app']
+
+[[vm]]
+  memory = '1gb'
+  cpu_kind = 'shared'
+  cpus = 1
+  memory_mb = 256
