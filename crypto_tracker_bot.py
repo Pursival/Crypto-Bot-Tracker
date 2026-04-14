@@ -85,39 +85,11 @@ def fetch_xrp_sol_prices():
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "Welcome! Commands:\n"
-        "/set_xrp <price> - set XRP buy price\n"
-        "/set_sol <price> - set SOL buy price\n"
         "/set_position <bought|sold> <coin> <price> - set a position\n"
         "/last - show last ping percentages, prices, and threshold\n"
         "/set_threshold <percent> - set discrepancy threshold\n"
         "/toggle_spam - enable/disable spam alerts"
     )
-
-async def set_xrp(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.args:
-        try:
-            value = float(context.args[0])
-            data["xrp_buy"] = value
-            with open(DATA_FILE, "w") as f:
-                json.dump(data, f)
-            await update.message.reply_text(f"XRP buy price set to {value} USDT")
-        except ValueError:
-            await update.message.reply_text("Usage: /set_xrp <price> (number required)")
-    else:
-        await update.message.reply_text("Usage: /set_xrp <price>")
-
-async def set_sol(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if context.args:
-        try:
-            value = float(context.args[0])
-            data["sol_buy"] = value
-            with open(DATA_FILE, "w") as f:
-                json.dump(data, f)
-            await update.message.reply_text(f"SOL buy price set to {value} USDT")
-        except ValueError:
-            await update.message.reply_text("Usage: /set_sol <price> (number required)")
-    else:
-        await update.message.reply_text("Usage: /set_sol <price>")
 
 async def set_position(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(context.args) != 3:
@@ -142,10 +114,20 @@ async def set_position(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if action.lower() == "bought":
         data["bought_coin"] = coin
         data["bought_price"] = price
+        # Keep XRP/SOL reference prices in sync for /last display
+        if coin == "XRP":
+            data["xrp_buy"] = price
+        elif coin == "SOL":
+            data["sol_buy"] = price
         await update.message.reply_text(f"Bought {coin} at {price} USDT")
     elif action.lower() == "sold":
         data["sold_coin"] = coin
         data["sold_price"] = price
+        # Keep XRP/SOL reference prices in sync for /last display
+        if coin == "XRP":
+            data["xrp_buy"] = price
+        elif coin == "SOL":
+            data["sol_buy"] = price
         await update.message.reply_text(f"Sold {coin} at {price} USDT")
     else:
         await update.message.reply_text("Action must be 'bought' or 'sold'.")
@@ -275,8 +257,6 @@ def run_flask():
 app = ApplicationBuilder().token(TOKEN).build()
 
 app.add_handler(CommandHandler("start", start))
-app.add_handler(CommandHandler("set_xrp", set_xrp))
-app.add_handler(CommandHandler("set_sol", set_sol))
 app.add_handler(CommandHandler("set_position", set_position))
 app.add_handler(CommandHandler("last", last))
 app.add_handler(CommandHandler("set_threshold", set_threshold))
