@@ -11,7 +11,7 @@ from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 CHAT_ID = os.environ["TELEGRAM_CHAT_ID"]
 DATA_FILE = "crypto_data.json"
-UPDATE_INTERVAL = 300          # seconds (5 minutes)
+UPDATE_INTERVAL = 120          # seconds (5 minutes)
 
 # CoinGecko ID map for common symbols
 COIN_IDS = {
